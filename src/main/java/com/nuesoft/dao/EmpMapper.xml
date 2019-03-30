@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nuesoft.dao.EmpMapper" >
+  <resultMap id="BaseResultMap" type="com.nuesoft.po.Emp" >
+    <id column="empid" property="empid" jdbcType="INTEGER" />
+    <result column="empname" property="empname" jdbcType="VARCHAR" />
+    <result column="empjob" property="empjob" jdbcType="VARCHAR" />
+    <result column="empwages" property="empwages" jdbcType="INTEGER" />
+    <result column="empdept" property="empdept" jdbcType="INTEGER" />
+    <result column="path" property="path" jdbcType="VARCHAR" />
+    <association property="dept" javaType="com.nuesoft.po.Dept">
+      <id column="deptid" property="deptid" jdbcType="INTEGER" />
+      <result column="deptname" property="deptname" jdbcType="VARCHAR" />
+    </association>
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    empid, empname, empjob, empwages, empdept, path
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.nuesoft.po.EmpExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from emp
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from emp
+    where empid = #{empid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select * from emp join dept on emp.empdept=dept.deptid
+    <where>
+      <if test="empdeptid!=0">
+        emp.empdept=#{empdeptid}
+      </if>
+      <if test="empname!=null">
+        and emp.empname like concat('%',#{empname},'%')
+      </if>
+      <if test="empwages!=0">
+        and emp.empwages > #{empwages}
+      </if>
+
+    </where>
+    order by emp.empid asc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from emp
+    where empid = #{empid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.nuesoft.po.Emp" >
+    insert into emp (empid, empname, empjob, 
+      empwages, empdept, path
+      )
+    values (#{empid,jdbcType=INTEGER}, #{empname,jdbcType=VARCHAR}, #{empjob,jdbcType=VARCHAR}, 
+      #{empwages,jdbcType=INTEGER}, #{empdept,jdbcType=INTEGER}, #{path,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.nuesoft.po.Emp" >
+    insert into emp
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="empid != null" >
+        empid,
+      </if>
+      <if test="empname != null" >
+        empname,
+      </if>
+      <if test="empjob != null" >
+        empjob,
+      </if>
+      <if test="empwages != null" >
+        empwages,
+      </if>
+      <if test="empdept != null" >
+        empdept,
+      </if>
+      <if test="path != null" >
+        path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="empid != null" >
+        #{empid,jdbcType=INTEGER},
+      </if>
+      <if test="empname != null" >
+        #{empname,jdbcType=VARCHAR},
+      </if>
+      <if test="empjob != null" >
+        #{empjob,jdbcType=VARCHAR},
+      </if>
+      <if test="empwages != null" >
+        #{empwages,jdbcType=INTEGER},
+      </if>
+      <if test="empdept != null" >
+        #{empdept,jdbcType=INTEGER},
+      </if>
+      <if test="path != null" >
+        #{path,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <insert id="deleteByids">
+    delete from emp where empid in
+    <foreach collection="array" close=")" separator="," open="(" item="ids">
+      #{ids}
+    </foreach>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.nuesoft.po.Emp" >
+    update emp
+    <set >
+      <if test="empname != null" >
+        empname = #{empname,jdbcType=VARCHAR},
+      </if>
+      <if test="empjob != null" >
+        empjob = #{empjob,jdbcType=VARCHAR},
+      </if>
+      <if test="empwages != null" >
+        empwages = #{empwages,jdbcType=INTEGER},
+      </if>
+      <if test="empdept != null" >
+        empdept = #{empdept,jdbcType=INTEGER},
+      </if>
+      <if test="path != null" >
+        path = #{path,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where empid = #{empid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.nuesoft.po.Emp" >
+    update emp
+    set empname = #{empname,jdbcType=VARCHAR},
+      empjob = #{empjob,jdbcType=VARCHAR},
+      empwages = #{empwages,jdbcType=INTEGER},
+      empdept = #{empdept,jdbcType=INTEGER},
+      path = #{path,jdbcType=VARCHAR}
+    where empid = #{empid,jdbcType=INTEGER}
+  </update>
+</mapper>
